@@ -26,15 +26,15 @@ export default function RootLayout({ children }) {
         >
         <header className="flex bg-[#1C1C1C] h-[10vh] justify-between">
             <div className="flex pl-[73px] pt-[24px]">
-                <div className="rounded-full bg-[#D9D9D9] h-[60px]">
+                <div>
                     <Image
-                        src="/image%203.png"
+                        src="/logo.png"
                         alt="Logo"
-                        width={60}
-                        height={60}
+                        width={50}
+                        height={40}
                     />
                 </div>
-                <span className="text-[#FFFFFF] text-[40px]">Mihest</span>
+                <span className="ml-2 text-[#FFFFFF] text-[40px]">Mihest</span>
             </div>
             <div className="flex space-x-6 pl-10 text-[24px] justify-center">
                 <Link
