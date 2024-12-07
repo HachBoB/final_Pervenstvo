@@ -18,6 +18,11 @@ body {
   color: var(--foreground);
   background: #1C1C1C;
   font-family: RussoOne, serif;
+  cursor: url('/cursor.png'), auto;
+}
+
+a:hover {
+  cursor: url('/dot.png'), pointer; /* При наведении на ссылку используем кастомный курсор */
 }
 
 @font-face {

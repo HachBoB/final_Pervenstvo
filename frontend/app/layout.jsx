@@ -1,9 +1,13 @@
-"use client"
+"use client";
 import localFont from "next/font/local";
 import "./globals.css";
 import Image from "next/image";
-import Link from "next/link"; // Используем Link для навигации
-import { usePathname } from "next/navigation"; // Определение текущего пути
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import Login from "@/app/authorization/login/page";
+import Registration from "@/app/authorization/registration/page";
+import CustomCursor from "@/app/components/CustomCursor";
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",
@@ -17,13 +21,49 @@ const geistMono = localFont({
 });
 
 export default function RootLayout({ children }) {
-    const pathname = usePathname(); // Получение текущего пути
+    const pathname = usePathname();
+    const [isFirstModalOpen, setIsFirstModalOpen] = useState(false);
+    const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);
+
+    const openFirstModal = () => {
+        setIsFirstModalOpen(true);
+        setIsSecondModalOpen(false);
+    };
+
+    const openSecondModal = () => {
+        setIsSecondModalOpen(true);
+        setIsFirstModalOpen(false);
+    };
+
+    const closeAllModals = () => {
+        setIsFirstModalOpen(false);
+        setIsSecondModalOpen(false);
+    };
 
     return (
         <html className="bg-[#1C1C1C]" lang="en">
         <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
+        <>
+            <div className="p-6 absolute">
+                {/* Первая модалка */}
+                {isFirstModalOpen && (
+                    <Login
+                        closeModal={closeAllModals}
+                        openRegister={openSecondModal}
+                    />
+                )}
+
+                {/* Вторая модалка */}
+                {isSecondModalOpen && (
+                    <Registration
+                        closeModal={closeAllModals}
+                        openLogin={openFirstModal}
+                    />
+                )}
+            </div>
+        </>
         <header className="flex bg-[#1C1C1C] h-[10vh] justify-between">
             <div className="flex pl-[73px] pt-[24px]">
                 <div>
@@ -63,11 +103,12 @@ export default function RootLayout({ children }) {
                 </Link>
             </div>
             <div className="flex items-center w-[15%] text-[20px]">
-                <Link href="/login"
-                      className="bg-[#DB7038] w-full text-white px-4 py-2 rounded-l-[10px]"
+                <button
+                    className="bg-[#DB7038] w-full text-white px-4 py-2 rounded-l-[10px]"
+                    onClick={openFirstModal}
                 >
                     Войти
-                </Link>
+                </button>
             </div>
         </header>
         {children}
