@@ -23,7 +23,7 @@ export default function Accordion() {
                 <p className="text-white text-[40px] mt-[1%] mb-[2%]">Регионы</p>
                 <button
                     onClick={toggleAccordion} // При клике на кнопку меняем состояние
-                    className="w-full text-left p-4 text-white bg-[#2B2B2B] border border-[#DB7038] rounded-[45px] justify-between items-center shadow-custom focus:outline-none flex"
+                    className="w-full text-left p-4 text-white text-[20px] bg-[#2B2B2B] border border-[#DB7038] rounded-[45px] justify-between items-center shadow-custom focus:outline-none flex"
                 >
                     Брянская область
                     <div
@@ -47,8 +47,8 @@ export default function Accordion() {
                     transition={{
                         type: "spring",
                         stiffness: 50,
-                        damping: 25,
-                        duration: 1.2, // Устанавливаем продолжительность анимации для плавности
+                        damping: 15,
+                        duration: 2.2, // Устанавливаем продолжительность анимации для плавности
                     }}
                     className="overflow-hidden  text-white rounded-b-md border-none"
                 >

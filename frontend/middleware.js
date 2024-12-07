@@ -9,6 +9,7 @@ const guestRoutes = ["/forgot-password", "/login", "/password-reset", "/register
 
 
 export async function middleware(request) {
+    console.log(request.url)
     const token = request.cookies.get('access_token')
 
     const isAuthRoute = authRoutes.some((route) => request.nextUrl.pathname.startsWith(route));
@@ -35,7 +36,7 @@ export async function middleware(request) {
             const currentTime = Math.floor(Date.now() / 1000);
 
             if (decoded.exp <= currentTime) {
-                const res = await fetch(`${process.env.BACKEND_HOST}/Authentication/Refresh`, {
+                const res = await fetch(`https://mihest.ru/api/AccService/Authentication/Refresh`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -110,6 +111,6 @@ export const config = {
          * - _next/image (image optimization files)
          * - favicon.ico (favicon file)
          */
-        '/((?!api|_next/static|_next/image|favicon.ico).*)',
+        '/((?!api|_next/static|_next/image|favicon.ico|.*\\.png).*)',
     ],
 }

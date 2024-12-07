@@ -138,7 +138,9 @@ export default function RootLayout({ children }) {
                 )}
             </div>
         </header>
-        {children}
+        <div className="h-[100vh]">
+            {children}
+        </div>
         </body>
         </html>
     );
