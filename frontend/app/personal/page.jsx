@@ -15,7 +15,13 @@ export default function Personal() {
           type="submit"
           className="border-[#DB7038] border-2 rounded-[10px] shadow-custom p-3 text-[30px] w-[100%] text-center"
         >
-          sdfsd
+          Новый заявки
+        </button>
+        <button
+          type="submit"
+          className="border-[#DB7038] border-2 rounded-[10px] shadow-custom p-3 text-[30px] w-[100%] text-center"
+        >
+          Отклоненные заявки
         </button>
       </div>
       <div className="border-[#DB7038] border-2 rounded-l-[20px] flex flex-col shadow-custom w-[30%] py-[2.5%] items-center bg-[#44444461]">
