@@ -19,7 +19,7 @@ export default function Login({ closeModal, openRegister }) {
             console.log(response.data)
 
             // Установка токенов в cookies
-            document.cookie = `access_token=Bearer%20${response.data.access_token}; path=/; max-age=2592000`;
+            document.cookie = `access_token=${response.data.access_token}; path=/; max-age=2592000`;
             document.cookie = `refresh_token=${response.data.refresh_token}; path=/; max-age=2592000`;
 
             // Закрытие модалки и редирект

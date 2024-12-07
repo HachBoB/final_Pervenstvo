@@ -86,7 +86,7 @@ export async function middleware(request) {
             // В случае любой ошибки
             response.cookies.delete("access_token");
             response.cookies.delete("refresh_token");
-            return NextResponse.redirect("/login");
+            return NextResponse.redirect(new URL("/login", request.url));
         }
     }
 
