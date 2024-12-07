@@ -1,116 +1,98 @@
-import {NextResponse} from "next/server";
-import {ParseToken} from "@/utils/auth";
-import axios from "axios";
+import { NextResponse } from "next/server";
+import { ParseToken } from "@/utils/auth";
 
-
-const authRoutes = ['/profile'];
-const adminRoutes = ['/admin'];
+const authRoutes = ["/profile"];
+const adminRoutes = ["/admin"];
 const guestRoutes = ["/forgot-password", "/login", "/password-reset", "/register"];
 
-
 export async function middleware(request) {
-    console.log(request.url)
-    const token = request.cookies.get('access_token')
+    const token = request.cookies.get("access_token");
+    const refreshToken = request.cookies.get("refresh_token");
 
-    const isAuthRoute = authRoutes.some((route) => request.nextUrl.pathname.startsWith(route));
-    const isGuestRoute = guestRoutes.some((route) => request.nextUrl.pathname.startsWith(route));
-    const isAdminRoute = adminRoutes.some((route) => request.nextUrl.pathname.startsWith(route));
+    const isAuthRoute = authRoutes.some((route) =>
+        request.nextUrl.pathname.startsWith(route)
+    );
+    const isGuestRoute = guestRoutes.some((route) =>
+        request.nextUrl.pathname.startsWith(route)
+    );
+    const isAdminRoute = adminRoutes.some((route) =>
+        request.nextUrl.pathname.startsWith(route)
+    );
 
+    // Если нет токенов для защищенных маршрутов
     if (!token && (isAuthRoute || isAdminRoute)) {
         const redirectUrl = new URL("/login", request.url);
         redirectUrl.searchParams.set("callbackUrl", request.nextUrl.href);
         return NextResponse.redirect(redirectUrl);
     }
 
-    const response = NextResponse.next()
-    const redirect = NextResponse.redirect(request.headers.get('referer') || new URL('/', request.url))
+    const response = NextResponse.next();
 
     if (token) {
         try {
-            if (isGuestRoute) {
-                return redirect
-            }
-
-            const decoded = ParseToken(token.value)
-
+            // Проверка токена
+            const decoded = ParseToken(token.value);
             const currentTime = Math.floor(Date.now() / 1000);
 
-            if (decoded.exp <= currentTime) {
+            // Если токен истек
+            if (decoded.exp <= currentTime && refreshToken) {
                 const res = await fetch(`https://mihest.ru/api/AccService/Authentication/Refresh`, {
                     method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({"refreshToken": request.cookies.get("refresh_token").value}),
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ refreshToken: refreshToken.value }),
                 });
-                const data = await res.json()
+
                 if (res.ok) {
-                    response.cookies.set(
-                        'access_token',
-                        "Bearer%20" + data.access_token,
-                        {
-                            expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-                            path: '/',
-                            httpOnly: true
-                        }
-                    )
-                    response.cookies.set(
-                        'refresh_token',
-                        data.refresh_token,
-                        {
-                            expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-                            path: '/',
-                            httpOnly: true
-                        }
-                    )
-                    const newDecoded = ParseToken(data.access_token)
+                    const data = await res.json();
+                    console.log(data);
+                    response.cookies.delete("access_token");
+                    response.cookies.delete("refresh_token");
+                    // Установка новых токенов
+                    response.cookies.set("access_token", data.access_token, {
+                        path: "/",
+                        httpOnly: true,
+                        maxAge: 60 * 60 * 24 * 30, // 30 дней
+                    });
+
+                    response.cookies.set("refresh_token", data.refresh_token, {
+                        path: "/",
+                        httpOnly: true,
+                        maxAge: 60 * 60 * 24 * 365, // 1 год
+                    });
+
+                    const newDecoded = ParseToken(data.access_token);
+
+                    // Проверка роли для админ-маршрутов
                     if (isAdminRoute && newDecoded.role !== "admin") {
-                        const redirect = NextResponse.redirect(
-                            request.headers.get("referer") || new URL("/", request.url)
-                        );
-                        redirect.cookies.set("access_token", "Bearer%20" + data.access_token, {
-                            expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-                            path: "/",
-                            httpOnly: true,
-                        });
-                        redirect.cookies.set("refresh_token", data.refresh_token, {
-                            expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-                            path: "/",
-                            httpOnly: true,
-                        });
+                        const redirect = NextResponse.redirect(new URL("/", request.url));
                         return redirect;
                     }
-                }
-                else {
-                    const redirect = NextResponse.redirect('/login')
-                    redirect.cookies.delete('access_token')
-                    redirect.cookies.delete('refresh_token')
-                    return redirect
+                } else {
+                    // Если обновление токена не удалось
+                    response.cookies.delete("access_token");
+                    response.cookies.delete("refresh_token");
+                    const redirectUrl = new URL("/login", request.url);
+                    redirectUrl.searchParams.set("error", "session_expired");
+                    return NextResponse.redirect(redirectUrl);
                 }
             }
 
-            if (isAdminRoute && decoded.role !== 'admin') {
+            // Проверка роли на админ-маршрутах
+            if (isAdminRoute && decoded.role !== "admin") {
+                const redirect = NextResponse.redirect(new URL("/", request.url));
                 return redirect;
             }
-            return response
-        } catch (err) {
-            redirect.cookies.delete('access_token')
-            redirect.cookies.delete('refresh_token')
-            return redirect
+        } catch (error) {
+            // В случае любой ошибки
+            response.cookies.delete("access_token");
+            response.cookies.delete("refresh_token");
+            return NextResponse.redirect("/login");
         }
     }
-    return response
+
+    return response;
 }
 
 export const config = {
-    matcher: [
-        /*
-         * Match all request paths except for the ones starting with:
-         * - api (API routes)
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         */
-        '/((?!api|_next/static|_next/image|favicon.ico|.*\\.png).*)',
-    ],
-}
+    matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+};

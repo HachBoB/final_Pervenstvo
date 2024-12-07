@@ -15,7 +15,6 @@ export default async function PersonalPage() {
         );
     }
 
-    // Загружаем данные пользователя
     let userData;
     try {
         userData = await getUserData(token);

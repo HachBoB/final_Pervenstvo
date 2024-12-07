@@ -59,9 +59,7 @@ export default function RootLayout({ children }) {
 
     return (
         <html className="bg-[#1C1C1C]" lang="en">
-        <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex-col flex h-screen`}>
         <>
             <div className="p-6 absolute">
                 {/* Первая модалка */}
@@ -138,9 +136,7 @@ export default function RootLayout({ children }) {
                 )}
             </div>
         </header>
-        <div className="h-[100vh]">
             {children}
-        </div>
         </body>
         </html>
     );

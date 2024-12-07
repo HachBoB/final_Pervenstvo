@@ -48,8 +48,9 @@ export default function ProfileClientComponent({ userData, token }) {
     };
 
     return (
-        <div className="flex gap-[4%] mt-[2.5%] text-white">
-            <div className="border-[#DB7038] h-[100%] border-t-2 border-r-2 border-b-2 rounded-r-[20px] shadow-custom w-[20%] items-center flex flex-col gap-6 py-[2.5%] px-3 bg-[#44444461]">
+
+        <div className="flex gap-[4%] mt-[2.5%] text-white w-full flex-1">
+            <div className="border-[#DB7038] flex h-full border-t-2 border-r-2 border-b-2 rounded-r-[20px] shadow-custom w-[20%] items-center flex flex-col gap-6 py-[2.5%] px-3 bg-[#44444461]">
                 <button
                     type="submit"
                     className="border-[#DB7038] border-2 rounded-[10px] shadow-custom p-3 text-[30px] w-[100%] text-center"
@@ -57,7 +58,7 @@ export default function ProfileClientComponent({ userData, token }) {
                     Личная информация
                 </button>
             </div>
-
+            <div className="flex mx-auto w-full">
             {/* Центр с аватаром */}
             <div className="border-[#DB7038] border-2 rounded-l-[20px] flex flex-col shadow-custom w-[30%] py-[2.5%] items-center bg-[#44444461]">
                 <div>
@@ -73,14 +74,14 @@ export default function ProfileClientComponent({ userData, token }) {
                 </div>
                 <div className="flex mt-[8%]">
                     <p className="text-[30px]">{formData.first_name || "User"}</p>
-                    <p className="text-[20px] text-[#CF4242]">Суперадмин</p>
+                    <p className="text-[20px] text-[#CF4242]">{formData.name || "User"}</p>
                 </div>
                 <div className="bg-[#DB7038] w-[50%] h-[1px] mt-[2%]"></div>
                 <p className="text-[30px] mt-[5%] text-[#DB7038]">Статистика</p>
             </div>
 
             {/* Форма */}
-            <div className="border-[#DB7038] border-2 rounded-r-[20px] flex shadow-custom w-[40%] bg-[#44444461] px-[3%] py-[1.5%] flex flex-col gap-6 ">
+            <div className="border-[#DB7038] border-2 rounded-r-[20px] ml-[1.5%] shadow-custom w-[40%] bg-[#44444461] px-[3%] py-[1.5%] flex flex-col gap-6 ">
                 <p className="text-[40px]">Личные данные</p>
                 {error && <p className="text-red-500">{error}</p>}
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -185,6 +186,7 @@ export default function ProfileClientComponent({ userData, token }) {
                         {isPending ? "Сохранение..." : "Редактировать"}
                     </button>
                 </form>
+            </div>
             </div>
         </div>
     );
