@@ -1,5 +1,4 @@
 import Image from "next/image";
-import ImageUpload from "@/app/personal/ClientComponent";
 
 export default function Personal() {
   return (
