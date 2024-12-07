@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import {useState} from "react";
-
+import { motion } from 'framer-motion';
 export default function Home() {
 
 
@@ -27,6 +27,7 @@ export default function Home() {
     ];
   return (
       <div className="flex-col w-[80%] mx-auto">
+
           <div className="w-full mt-[6%] items-center border-[#DB7038] border-[1px] rounded-[10px] flex shadow-custom">
             <div className="ml-[10%] flex-col">
                 <p className="text-[#DB7038]  font-sans">Регистрация открыта</p>
@@ -63,12 +64,21 @@ export default function Home() {
                             <p className="text-white">Сек</p>
                         </div>
                     </div>
-                    <div className="mt-[4%]">
-                        <Link href="/chempID"
-                              className="text-white border border-[#FFFFFF] rounded-[10px] w-[250px] h-[52px] flex items-center justify-center"
+
+                    <div className="mt-[10%]">
+                        {/* Оборачиваем Link в motion.div для анимации */}
+                        <motion.div
+                            whileHover={{ scale: 1.05 }}  // Увеличиваем размер при наведении
+                            whileTap={{ scale: 0.95 }}    // Уменьшаем при нажатии
+                            transition={{ type: "spring", stiffness: 400, damping: 10 }}  // Анимация с физикой
                         >
-                            Подробнее
-                        </Link>
+                            <Link
+                                href="/chempID"
+                                className="text-white border border-[#FFFFFF] rounded-[10px] w-[250px] h-[52px] flex items-center justify-center"
+                            >
+                                Подробнее
+                            </Link>
+                        </motion.div>
                     </div>
                 </div>
             </div>
@@ -82,6 +92,7 @@ export default function Home() {
                   />
               </div>
           </div>
+
           <div className="w-full mt-[6%] items-center border-[#DB7038] border-[1px] rounded-[10px] flex-col px-[10%] shadow-custom bg-[#313131]">
               <p className="text-white text-[20px]">События</p>
               <div className="flex mx-auto w-full">

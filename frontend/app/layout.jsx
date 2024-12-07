@@ -4,10 +4,9 @@ import "./globals.css";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Login from "@/app/authorization/login/page";
 import Registration from "@/app/authorization/registration/page";
-import CustomCursor from "@/app/components/CustomCursor";
 
 const geistSans = localFont({
     src: "./fonts/GeistVF.woff",
@@ -24,6 +23,7 @@ export default function RootLayout({ children }) {
     const pathname = usePathname();
     const [isFirstModalOpen, setIsFirstModalOpen] = useState(false);
     const [isSecondModalOpen, setIsSecondModalOpen] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const openFirstModal = () => {
         setIsFirstModalOpen(true);
@@ -40,6 +40,23 @@ export default function RootLayout({ children }) {
         setIsSecondModalOpen(false);
     };
 
+    // Проверка токена
+    const checkAuth = () => {
+        const token = document.cookie.split("; ").find((row) => row.startsWith("access_token="));
+        setIsAuthenticated(!!token); // Устанавливаем авторизацию на основе наличия токена
+    };
+
+    // Проверяем токен при загрузке
+    useEffect(() => {
+        checkAuth();
+    }, []);
+
+    // Функция для обновления состояния авторизации после входа
+    const handleLoginSuccess = () => {
+        checkAuth(); // Проверяем токен и обновляем состояние
+        closeAllModals(); // Закрываем модалку входа
+    };
+
     return (
         <html className="bg-[#1C1C1C]" lang="en">
         <body
@@ -52,6 +69,7 @@ export default function RootLayout({ children }) {
                     <Login
                         closeModal={closeAllModals}
                         openRegister={openSecondModal}
+                        onLoginSuccess={handleLoginSuccess} // Вызываем после успешного входа
                     />
                 )}
 
@@ -103,12 +121,21 @@ export default function RootLayout({ children }) {
                 </Link>
             </div>
             <div className="flex items-center w-[15%] text-[20px]">
-                <button
-                    className="bg-[#DB7038] w-full text-white px-4 py-2 rounded-l-[10px]"
-                    onClick={openFirstModal}
-                >
-                    Войти
-                </button>
+                {isAuthenticated ? (
+                    <Link
+                        href="/profile"
+                        className="bg-[#DB7038] w-full text-white px-4 py-2 rounded-l-[10px] text-center"
+                    >
+                        Профиль
+                    </Link>
+                ) : (
+                    <button
+                        className="bg-[#DB7038] w-full text-white px-4 py-2 rounded-l-[10px]"
+                        onClick={openFirstModal}
+                    >
+                        Войти
+                    </button>
+                )}
             </div>
         </header>
         {children}

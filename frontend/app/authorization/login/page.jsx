@@ -1,29 +1,59 @@
+import { useState } from "react";
+import axios from "axios";
+import {redirect} from "next/navigation";
+
 export default function Login({ closeModal, openRegister }) {
-    const handleBackgroundClick = (e) => {
-        if (e.target === e.currentTarget) {
-            closeModal(); // Закрываем модалку при клике на фон
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError("");
+
+        try {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_HOST}/api/AccService/Authentication/SignIn`, {
+                email,
+                password,
+            });
+            console.log(response.data)
+
+            // Установка токенов в cookies
+            document.cookie = `access_token=${response.data.access_token}; path=/; max-age=2592000`;
+            document.cookie = `refresh_token=${response.data.refresh_token}; path=/; max-age=2592000`;
+
+            // Закрытие модалки и редирект
+            closeModal();
+            window.location.reload();
+        } catch (err) {
+            setError(err.response?.data?.message || "Ошибка при входе");
         }
     };
 
     return (
         <div
             className="fixed top-0 left-0 right-0 bottom-0 bg-zinc-950 bg-opacity-80 flex justify-center items-center z-20"
-            onClick={handleBackgroundClick} // Обработчик клика по фону
+            onClick={(e) => e.target === e.currentTarget && closeModal()}
         >
             <div className="w-1/4 border-[#DB7038] border-2 rounded-[30px] flex shadow-custom bg-[#DD7135] bg-opacity-[65%] flex-col">
                 <p className="mb-8 text-center text-[40px]">Вход</p>
-                <form action="" className="flex flex-col gap-6">
+                {error && <p className="text-red-500 text-center">{error}</p>}
+                <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                     <input
                         type="email"
-                        name="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         className="bg-transparent border-b-2 border-[#DB7038] px-2 text-[20px] focus:outline-[#DB7038] focus:outline-none"
                         placeholder="Почта"
+                        required
                     />
                     <input
                         type="password"
-                        name="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         className="bg-transparent border-b-2 border-[#DB7038] px-2 text-[20px] focus:outline-[#DB7038] focus:outline-none"
                         placeholder="Пароль"
+                        required
                     />
                     <button
                         type="submit"
@@ -37,7 +67,7 @@ export default function Login({ closeModal, openRegister }) {
                 </p>
                 <p
                     className="mt-2 text-center text-[14px]"
-                    onClick={openRegister} // Переход на модалку регистрации
+                    onClick={openRegister}
                 >
                     Еще не зарегистрированы? <a href="#">Регистрация</a>
                 </p>
