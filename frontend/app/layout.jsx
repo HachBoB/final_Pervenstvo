@@ -54,7 +54,7 @@ export default function RootLayout({ children }) {
     // Функция для обновления состояния авторизации после входа
     const handleLoginSuccess = () => {
         checkAuth(); // Проверяем токен и обновляем состояние
-        closeAllModals(); // Закрываем модалку входа
+        closeAllModals();
     };
 
     return (
@@ -97,27 +97,27 @@ export default function RootLayout({ children }) {
             <div className="flex space-x-6 pl-10 text-[24px] justify-center">
                 <Link
                     href="/"
-                    className={`px-4 py-2 rounded-b-[10px] flex items-center ${
-                        pathname === "/" ? "bg-[#DB7038] text-white" : "text-[#FFFFFF]"
+                    className={`px-4 py-2 rounded-b-[10px] flex items-center transition-all duration-300 ${
+                        pathname === "/" ? "bg-[#DB7038] text-white" : "bg-transparent text-[#FFFFFF]"
                     }`}
                 >
                     Главная
                 </Link>
                 <Link
                     href="/calendar"
-                    className={`px-4 py-2 rounded-b-[10px] flex items-center ${
-                        pathname === "/calendar" ? "bg-[#DB7038] text-white" : "text-[#FFFFFF]"
+                    className={`px-4 py-2 rounded-b-[10px] flex items-center transition-all duration-300 ${
+                        pathname === "/calendar" ? "bg-[#DB7038] text-white" : "bg-transparent text-[#FFFFFF]"
                     }`}
                 >
                     Календарь
                 </Link>
                 <Link
-                    href="/txt"
-                    className={`px-4 py-2 rounded-b-[10px] flex items-center ${
-                        pathname === "/txt" ? "bg-[#DB7038] text-white" : "text-[#FFFFFF]"
+                    href="/regions"
+                    className={`px-4 py-2 rounded-b-[10px] flex items-center transition-all duration-300 ${
+                        pathname === "/regions" ? "bg-[#DB7038] text-white" : "bg-transparent text-[#FFFFFF]"
                     }`}
                 >
-                    Text
+                    Регионы
                 </Link>
             </div>
             <div className="flex items-center w-[15%] text-[20px]">
