@@ -39,3 +39,16 @@ class Refresh(BaseModel):
 class ForgotData(BaseModel):
     email: EmailStr
 
+
+class ForgotConfirmData(BaseModel):
+    password: str
+    confirm_password: str
+
+
+class ResetSessionCreate(BaseModel):
+    user_id: uuid.UUID
+
+
+class ConfirmSessionCreate(BaseModel):
+    user_id: uuid.UUID
+

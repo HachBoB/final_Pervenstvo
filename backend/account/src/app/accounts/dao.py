@@ -22,7 +22,7 @@ class UserDAO(BaseDAO[UserModel, UserCreateDB, UserUpdateDB]):
             *filters,
             **filter_by
     ) -> Optional[UserModel]:
-        stmt = select(cls.model).options(selectinload(cls.model.roles)).filter(*filters).filter_by(**filter_by)
+        stmt = select(cls.model).options(selectinload(cls.model.role)).filter(*filters).filter_by(**filter_by)
         result = await session.execute(stmt)
         # print(result.all())
         return result.scalars().one_or_none()
@@ -38,8 +38,8 @@ class UserDAO(BaseDAO[UserModel, UserCreateDB, UserUpdateDB]):
     ):
         stmt = (
             select(cls.model)
-            .options(selectinload(cls.model.roles))
-            .join(cls.model.roles)
+            .options(selectinload(cls.model.role))
+            .join(cls.model.role)
             .filter(*filters)
             .filter_by(**filter_by)
             .offset(offset)
@@ -60,30 +60,17 @@ class UserDAO(BaseDAO[UserModel, UserCreateDB, UserUpdateDB]):
         else:
             update_data = obj_in.model_dump(exclude_unset=True)
 
-        roles = update_data.pop("roles", None)
 
-        stmt = update(cls.model).where(*where).values(**update_data).returning(cls.model).options(selectinload(cls.model.roles))
+        role = update_data.pop("role", "User")
+
+        stmt = update(cls.model).where(*where).values(**update_data).returning(cls.model).options(selectinload(cls.model.role))
         result = await session.execute(stmt)
         updated_user = result.scalars().one_or_none()
 
-        if updated_user and roles is not None:
-            current_roles = {role.name for role in updated_user.roles}
-
-            new_roles_query = await session.execute(select(RoleModel).where(RoleModel.name.in_(roles)))
-            new_roles = new_roles_query.scalars().all()
-
-            # Формируем множество с именами новых ролей
-            new_roles_set = {role.name for role in new_roles}
-
-            # Добавляем новые роли, которые отсутствуют у пользователя
-            roles_to_add = new_roles_set - current_roles
-            for role in new_roles:
-                if role.name in roles_to_add:
-                    updated_user.roles.append(role)
-
-            # Удаляем роли, которые отсутствуют в новом списке
-            roles_to_remove = current_roles - new_roles_set
-            updated_user.roles = [role for role in updated_user.roles if role.name not in roles_to_remove]
+        if updated_user and role is not None:
+            new_role_query = await session.execute(select(RoleModel).where(RoleModel.name == role))
+            new_role = new_role_query.scalars().one_or_none()
+            updated_user.role = new_role
 
         return updated_user
 
@@ -98,24 +85,29 @@ class UserDAO(BaseDAO[UserModel, UserCreateDB, UserUpdateDB]):
         else:
             create_data = obj_in.model_dump(exclude_unset=True)
 
-        roles = create_data.pop("roles", None)
+        role = create_data.pop("role", "User")
 
         try:
-            stmt = insert(cls.model).values(**create_data).returning(cls.model).options(selectinload(cls.model.roles))
+            role_query = await session.execute(select(RoleModel).where(RoleModel.name == role))
+            role_obj = role_query.scalars().first()
+
+            if not role_obj:
+                raise ValueError(f"Role '{role}' does not exist.")
+
+            # Добавление пользователя с ролью
+            create_data["role_id"] = role_obj.id  # Связываем пользователя с ролью через role_id
+            stmt = insert(cls.model).values(**create_data).returning(cls.model).options(selectinload(cls.model.role))
             result = await session.execute(stmt)
             user: UserModel = result.scalars().first()
 
-            if user:
-                if not roles:
-                    roles = ['User']
-
-                new_roles_query = await session.execute(select(RoleModel).where(RoleModel.name.in_(roles)))
-                new_roles = new_roles_query.scalars().all()
-                user.roles.extend(new_roles)
-                return user
-        except IntegrityError:
+            await session.commit()
+            return user
+        except IntegrityError as e:
+            print(e)
             raise ConflictUniqueAttribute('Username is already taken.')
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
+            print(e)
             raise DatabaseException
-        except Exception:
+        except Exception as e:
+            print(e)
             raise UnknownDatabaseException

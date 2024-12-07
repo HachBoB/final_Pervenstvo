@@ -1,7 +1,7 @@
 import uuid
 from typing import List
 
-from sqlalchemy import String, Boolean, UUID, Table, ForeignKey, Column, Integer
+from sqlalchemy import String, Boolean, UUID, Table, ForeignKey, Column, Integer, BigInteger
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.base_model import Base
@@ -11,12 +11,22 @@ class UserModel(Base):
     __tablename__ = 'users'
     id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=uuid.uuid4)
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    number: Mapped[int] = mapped_column(BigInteger, nullable=True)
+
+    first_name: Mapped[str] = mapped_column(String)
+    last_name: Mapped[str] = mapped_column(String, nullable=True)
+    region: Mapped[str] = mapped_column(String, nullable=True)
+    is_man: Mapped[bool] = mapped_column(Boolean, nullable=True)
+
 
     hashed_password: Mapped[str] = mapped_column(
         String(1024), nullable=False
     )
     is_verify: Mapped[bool] = mapped_column(Boolean, default=False)
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    role_id: Mapped[int] = mapped_column(Integer, ForeignKey(
+        "roles.id", ondelete="CASCADE"))
 
     role: Mapped["RoleModel"] = relationship(
         "RoleModel",

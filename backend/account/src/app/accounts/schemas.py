@@ -1,6 +1,6 @@
 import uuid
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class RoleSchema(BaseModel):
@@ -14,40 +14,62 @@ class UserBase(BaseModel):
 
 class UserDb(BaseModel):
     id: uuid.UUID
-    username: str
-    roles: list[RoleSchema]
+    email: EmailStr
+    first_name: str
+    last_name: Optional[str]
+    is_man: Optional[bool]
+    region: Optional[str]
+    number: Optional[int]
+    is_deleted: bool
+    is_verify: bool
+
+    role: RoleSchema
 
     model_config = {'from_attributes': True}
 
 
-class UserCreate(UserBase):
-    username: str
+class UserCreate(BaseModel):
+    email: EmailStr
     password: str
+    confirm_password: str
+    first_name: str
 
 
 class UserCreateAdmin(UserCreate):
-    roles: List[str]
+    role: str
 
 
 class UserCreateDB(BaseModel):
-    username: str
+    email: EmailStr
+    first_name: str
     hashed_password: str
-    roles: Optional[List[str]] = None
+    role: Optional[str] = None
 
 
 class UserUpdate(BaseModel):
+    email: EmailStr
+    first_name: str
+    last_name: str
+    is_man: bool
+    region: str
+    number: int
     password: str
 
 
 class UserUpdateAdmin(UserUpdate):
-    username: str
-    roles: List[str]
+    role: str
 
 
 class UserUpdateDB(BaseModel):
-    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+    first_name: str
+    last_name: str
+    is_man: bool
+    region: str
+    number: int
+    is_verify: bool
     hashed_password: str
-    roles: Optional[List[str]] = None
+    role: Optional[str]
 
 
 class ResponseDoctor(BaseModel):

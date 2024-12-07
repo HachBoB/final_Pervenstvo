@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.app.accounts.models import UserModel
 from src.database import db
-from src.dependencies import validate_token
+from src.dependencies import validate_token, get_current_user
 from src.app.accounts.schemas import UserCreate
-from src.app.authentication.schemas import Token, CredentialsJSON, CredentialsFormData, Refresh, ForgotData
+from src.app.authentication.schemas import Token, CredentialsJSON, CredentialsFormData, Refresh, ForgotData, \
+    ForgotConfirmData
 from src.app.authentication.service import AuthService
 from src.exceptions import ErrorResponseModel
 from src import responses
@@ -14,7 +16,7 @@ router = APIRouter()
 
 @router.post("/SignUp", responses={
     409: responses.username_409
-})
+}, status_code=201)
 async def sign_up(
         data: UserCreate,
         session: AsyncSession = Depends(db.get_async_session)
@@ -89,3 +91,28 @@ async def forgot_password(
         session: AsyncSession = Depends(db.get_async_session)
 ):
     return await AuthService.forgot_password(email=data.email, session=session)
+
+
+@router.post("/ForgotPassword/{id}")
+async def reset_password(
+        id: str,
+        data: ForgotConfirmData,
+        session: AsyncSession = Depends(db.get_async_session)
+):
+    return await AuthService.reset_password(token=id, data=data, session=session)
+
+
+@router.post("/Verify")
+async def send_verify_email(
+        user: UserModel = Depends(get_current_user),
+        session: AsyncSession = Depends(db.get_async_session)
+):
+    return await AuthService.send_verify(session, user)
+
+
+@router.post("/Verify/{id}")
+async def verify_email(
+        id: str,
+        session: AsyncSession = Depends(db.get_async_session)
+):
+    return await AuthService.verify(token=id, session=session)

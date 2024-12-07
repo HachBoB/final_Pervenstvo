@@ -24,7 +24,7 @@ class RefreshSessionModel(Base):
 class ResetSessionModel(Base):
     __tablename__ = 'reset_session'
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, index=True)
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, index=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey(
         "users.id", ondelete="CASCADE"))
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), default=func.now())
@@ -35,10 +35,10 @@ class ResetSessionModel(Base):
 class ConfirmSessionModel(Base):
     __tablename__ = 'confirm_session'
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, index=True)
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, index=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey(
         "users.id", ondelete="CASCADE"))
-    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True), default=func.now())
 
     user: Mapped[UserModel] = relationship("UserModel", back_populates="confirm_sessions")
 

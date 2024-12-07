@@ -1,0 +1,91 @@
+# version: "3.8"
+
+services:
+  rabbitmq:
+    image: "rabbitmq:4-management"
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - work
+    # nginx:
+    #   image: nginx:stable-alpine
+    #   ports:
+    #     - "80:80"
+    #     - "443:443"
+    #   volumes:
+    #     - './ssl:/etc/nginx/ssl'
+    #     - './nginx.conf:/etc/nginx/nginx.conf'
+    #   environment:
+    #     - ENABLE_IPV6=false
+    #   depends_on:
+    #     - backend
+    #     - frontend
+    #   networks:
+    #     - work
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ./dumps/:/docker-entrypoint-initdb.d/
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: user
+      POSTGRES_DB: postgres
+    networks:
+      - work
+
+  account:
+    build:
+      context: ./backend/account/
+    container_name: account
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+      - rabbitmq
+    #      - redis
+    env_file:
+      - ./backend/account/.env
+    networks:
+      - work
+
+  notification:
+    build:
+      context: ./backend/notification/
+    container_name: notification
+    depends_on:
+      - rabbitmq
+    #      - redis
+    env_file:
+      - ./backend/notification/.env
+
+#   frontend:
+#     build:
+#       context: ./frontend/
+#     container_name: frontend
+#     ports:
+#       - "3000:3000"
+#     depends_on:
+#       - backend
+#     env_file:
+#       - ./frontend/.env
+#     networks:
+#       - work
+
+networks:
+  work:
+
+volumes:
+  postgres_data:
+  # redis_data:

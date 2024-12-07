@@ -6,11 +6,12 @@ from fastapi.security import OAuth2PasswordBearer
 import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.app.authentication.models import ResetSessionModel, ConfirmSessionModel
 from src.config import settings
 from src.database import db
 from src.exceptions.AuthExceptions import InvalidToken, TokenExpiredException
 from src.app.accounts.models import UserModel
-from src.rabbitMq.timetable import RabbitMQClient
+from src.rabbitMq.notification import RabbitMQClient
 
 
 oauth2 = OAuth2PasswordBearer(tokenUrl='/api/Authentication/SignIn')
@@ -52,24 +53,30 @@ async def get_current_user(token: str = Depends(oauth2), session: AsyncSession =
 
 
 async def get_current_manager(current_user: UserModel = Depends(get_current_user)):
-    if 'Manager' not in [role.name for role in current_user.roles]:
+    if 'Manager' != current_user.role.name:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough privileges.")
     return current_user
 
 
 async def get_current_doctor(current_user: UserModel = Depends(get_current_user)):
-    if 'Doctor' not in [role.name for role in current_user.roles]:
+    if 'Doctor' != current_user.role.name:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough privileges.")
     return current_user
 
 
 async def get_current_admin(current_user: UserModel = Depends(get_current_user)):
-    if 'Admin' not in [role.name for role in current_user.roles]:
+    if 'Admin' != current_user.role.name:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not enough privileges.")
     return current_user
 
 
-async def delete_timetable_doctor(doctor_id: uuid.UUID):
-    rabbitmq = RabbitMQClient()
-    await rabbitmq.call(doctor_id)
+async def send_forgot(session: ResetSessionModel):
+    rabbit_client = RabbitMQClient()
+    await rabbit_client.call(session.id, session.user.email, "forgot")
+
+
+async def send_verify(session: ConfirmSessionModel):
+    rabbit_client = RabbitMQClient()
+    await rabbit_client.call(session.id, session.user.email, "confirm")
+
 

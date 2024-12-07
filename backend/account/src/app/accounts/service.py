@@ -5,7 +5,7 @@ from sqlalchemy import and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app.accounts.dao import UserDAO
-from src.dependencies import delete_timetable_doctor
+from src.dependencies import send_forgot
 from src.app.accounts.models import UserModel
 from src.app.accounts.schemas import UserUpdate, UserUpdateDB, UserUpdateAdmin, \
     UserCreate, UserCreateAdmin, UserCreateDB
@@ -19,10 +19,12 @@ class UserService:
             data: UserCreate | UserCreateAdmin,
             session: AsyncSession
     ):
+        if data.password != data.confirm_password:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Passwords do not match")
         return await UserDAO.add(
             session,
             UserCreateDB(
-                **data.model_dump(exclude={"password"}),
+                **data.model_dump(exclude={"password", "confirm_password"}),
                 hashed_password=get_password_hash(data.password)
             )
         )
@@ -36,17 +38,17 @@ class UserService:
 
     @classmethod
     async def update_user(cls, user_id: uuid.UUID, user: UserUpdate | UserUpdateAdmin, session: AsyncSession):
-        if isinstance(user, UserUpdateAdmin):
-            print(123)
-            current_user = await cls.get_user(user_id, session)
-            if user.username == current_user.username:
-                del user.username
+        current_user = await cls.get_user(user_id, session)
+        if user.email == current_user.email:
+            del user.email
+
         user_update = await UserDAO.update(
             session,
             and_(UserModel.id == user_id, UserModel.is_deleted == False),
             obj_in=UserUpdateDB(
                 **user.model_dump(exclude={"password"}),
-                hashed_password=get_password_hash(user.password)
+                hashed_password=get_password_hash(user.password),
+                is_verify=current_user.is_verify if current_user.email == user.email else False
             )
         )
 
@@ -61,8 +63,4 @@ class UserService:
 
     @classmethod
     async def delete_user(cls, user_id: uuid.UUID, session: AsyncSession):
-        user = await cls.get_user(user_id, session)
-        if 'Doctor' in [role.name for role in user.roles]:
-            await delete_timetable_doctor(user.id)
-
-        await UserDAO.update(session, UserModel.id == user.id, obj_in={'is_deleted': True})
+        await UserDAO.update(session, UserModel.id == user_id, obj_in={'is_deleted': True})
