@@ -26,7 +26,19 @@ export default async function PersonalPage() {
             </div>
         );
     }
+    let new_events
+    if(userData.role.name === "Super admin"){
+        console.log(token)
+        const res = await fetch("https://mihest.ru/api/EventsService/Events/Consideration", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+            }
+        })
+        new_events = await res.json();
+        console.log(new_events)
+    }
 
     // Передаём данные пользователя и токен в клиентский компонент
-    return <ProfileClientComponent userData={userData} token={token} />;
+    return <ProfileClientComponent userData={userData} new_events={new_events} token={token} />;
 }

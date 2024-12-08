@@ -1,6 +1,6 @@
+"use client"
 import { useState } from "react";
 import axios from "axios";
-import {redirect} from "next/navigation";
 
 export default function Login({ closeModal, openRegister }) {
     const [email, setEmail] = useState("");

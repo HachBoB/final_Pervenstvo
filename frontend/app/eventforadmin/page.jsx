@@ -2,7 +2,7 @@
 import Image from "next/image";
 import React, { useState }  from "react";
 
-export default function eventforall() {
+export default function EventForAll() {
   const handleBack = () => {
     window.history.back();
   };

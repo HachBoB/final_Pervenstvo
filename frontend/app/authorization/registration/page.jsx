@@ -1,3 +1,4 @@
+"use client"
 import { useState } from "react";
 import axios from "axios";
 import process from "next/dist/build/webpack/loaders/resolve-url-loader/lib/postcss";
