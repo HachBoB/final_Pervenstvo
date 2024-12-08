@@ -35,7 +35,7 @@ services:
       - ENABLE_IPV6=false
     depends_on:
       - account
-#      - frontend
+    #      - frontend
     networks:
       - work
 
@@ -99,18 +99,16 @@ services:
     networks:
       - work
 
-#   frontend:
-#     build:
-#       context: ./frontend/
-#     container_name: frontend
-#     ports:
-#       - "3000:3000"
-#     depends_on:
-#       - backend
-#     env_file:
-#       - ./frontend/.env
-#     networks:
-#       - work
+  frontend:
+    build:
+      context: ./frontend/
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend/.env
+    networks:
+      - work
 
 networks:
   work:
