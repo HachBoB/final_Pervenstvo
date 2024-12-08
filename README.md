@@ -14,6 +14,6 @@
 ## Ссылки
 - Макет - https://www.figma.com/design/KVSPw1ZBtBdS1JzWGhHyoG/Untitled?node-id=0-1&node-type=canvas&t=8V1b4E71cJhVUWtg-0
 - Сайт - https://mihest.ru/
-- Видео + презентация - 
+- Видео + презентация - https://disk.yandex.com.am/client/disk/презентация
 На этом пока что всё наверное
 
