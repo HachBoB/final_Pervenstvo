@@ -141,7 +141,7 @@ export default function RootLayout({ children }) {
             )}
           </div>
         </header>
-        <div className="flex-1">{children}</div>
+        <div className="flex-1 overflow-x-hidden">{children}</div>
         <footer className="bg-[#0000004D] h-[20%] mt-[4%] w-full py-6 px-[15%]">
           <div className="flex gap-[10%] items-center justify-between flex text-white text-[20px]">
             <p>Контакты</p>
