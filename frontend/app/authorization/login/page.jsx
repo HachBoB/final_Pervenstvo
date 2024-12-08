@@ -43,7 +43,7 @@ export default function Login({ closeModal, openRegister }) {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="bg-transparent border-b-2 border-[#DB7038] px-2 text-[20px] focus:outline-[#DB7038] focus:outline-none"
+                        className="bg-transparent border-b-2 border-[#DB7038] px-2 text-[20px] focus:outline-none"
                         placeholder="Почта"
                         required
                     />
@@ -51,7 +51,7 @@ export default function Login({ closeModal, openRegister }) {
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="bg-transparent border-b-2 border-[#DB7038] px-2 text-[20px] focus:outline-[#DB7038] focus:outline-none"
+                        className="bg-transparent border-b-2 border-[#DB7038] px-2 text-[20px] focus:outline-none"
                         placeholder="Пароль"
                         required
                     />

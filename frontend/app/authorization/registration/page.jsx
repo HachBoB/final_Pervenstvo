@@ -60,7 +60,7 @@ export default function Registration({ closeModal, openLogin }) {
                 name="first_name"
                 value={formData.first_name}
                 onChange={handleInputChange}
-                className="bg-transparent border-b-2 border-[#DB7038] px-2 text-[20px] focus:outline-[#DB7038] focus:outline-none"
+                className="bg-transparent border-b-2 border-[#DB7038] px-2 text-[20px] focus:outline-none"
                 placeholder="Имя"
                 required
             />
@@ -69,7 +69,7 @@ export default function Registration({ closeModal, openLogin }) {
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="bg-transparent border-b-2 border-[#DB7038] px-2 text-[20px] focus:outline-[#DB7038] focus:outline-none"
+                className="bg-transparent border-b-2 border-[#DB7038] px-2 text-[20px] focus:outline-none"
                 placeholder="Почта"
                 required
             />
@@ -78,7 +78,7 @@ export default function Registration({ closeModal, openLogin }) {
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className="bg-transparent border-b-2 border-[#DB7038] px-2 text-[20px] focus:outline-[#DB7038] focus:outline-none"
+                className="bg-transparent border-b-2 border-[#DB7038] px-2 text-[20px] focus:outline-none"
                 placeholder="Пароль"
                 required
             />
@@ -87,7 +87,7 @@ export default function Registration({ closeModal, openLogin }) {
                 name="confirm_password"
                 value={formData.confirm_password}
                 onChange={handleInputChange}
-                className="bg-transparent border-b-2 border-[#DB7038] px-2 text-[20px] focus:outline-[#DB7038] focus:outline-none"
+                className="bg-transparent border-b-2 border-[#DB7038] px-2 text-[20px] focus:outline-none"
                 placeholder="Подтвердите пароль"
                 required
             />
