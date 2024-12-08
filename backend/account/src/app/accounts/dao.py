@@ -58,17 +58,29 @@ class UserDAO(BaseDAO[UserModel, UserCreateDB, UserUpdateDB]):
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
+            if not obj_in.hashed_password:
+                del obj_in.hashed_password
             update_data = obj_in.model_dump(exclude_unset=True)
 
+        # Извлекаем роль, если она есть
+        role = update_data.pop("role", None)
 
-        role = update_data.pop("role", "User")
-
-        stmt = update(cls.model).where(*where).values(**update_data).returning(cls.model).options(selectinload(cls.model.role))
+        # Формируем запрос для обновления
+        stmt = (
+            update(cls.model)
+            .where(*where)
+            .values(**update_data)
+            .returning(cls.model)
+            .options(selectinload(cls.model.role))
+        )
         result = await session.execute(stmt)
         updated_user = result.scalars().one_or_none()
 
-        if updated_user and role is not None:
-            new_role_query = await session.execute(select(RoleModel).where(RoleModel.name == role))
+        # Обновляем роль пользователя, если она указана
+        if updated_user and role:
+            new_role_query = await session.execute(
+                select(RoleModel).where(RoleModel.name == role)
+            )
             new_role = new_role_query.scalars().one_or_none()
             updated_user.role = new_role
 

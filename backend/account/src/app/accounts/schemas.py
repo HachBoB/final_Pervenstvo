@@ -17,6 +17,7 @@ class UserDb(BaseModel):
     email: EmailStr
     first_name: str
     last_name: Optional[str]
+    patronymic: Optional[str]
     is_man: Optional[bool]
     region: Optional[str]
     number: Optional[int]
@@ -50,10 +51,12 @@ class UserUpdate(BaseModel):
     email: EmailStr
     first_name: str
     last_name: str
+    patronymic: Optional[str] = None
     is_man: bool
     region: str
     number: int
-    password: str
+    password: Optional[str] = None
+    confirm_password: Optional[str] = None
 
 
 class UserUpdateAdmin(UserUpdate):
@@ -64,12 +67,13 @@ class UserUpdateDB(BaseModel):
     email: Optional[EmailStr] = None
     first_name: str
     last_name: str
+    patronymic: Optional[str] = None
     is_man: bool
     region: str
     number: int
     is_verify: bool
-    hashed_password: str
-    role: Optional[str]
+    hashed_password: Optional[str] = None
+    role: Optional[str] = None
 
 
 class ResponseDoctor(BaseModel):

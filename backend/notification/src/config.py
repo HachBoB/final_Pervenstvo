@@ -1,9 +1,5 @@
-from dotenv import load_dotenv
-from pydantic_settings import BaseSettings, SettingsConfigDict
-import logging
 from fastapi_mail import ConnectionConfig, FastMail
-
-load_dotenv()
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class MailConfig(BaseSettings):
@@ -30,8 +26,17 @@ class MailConfig(BaseSettings):
     model_config = SettingsConfigDict(env_file='.env', extra='ignore', env_prefix='SMTP_')
 
 
-
 class Settings(BaseSettings):
+    postgres_host: str
+    postgres_port: int
+    postgres_user: str
+    postgres_password: str
+    postgres_db: str
+
+    @property
+    def postgres_url(self) -> str:
+        return f"postgresql+asyncpg://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+
     rabbitmq_host: str
     rabbitmq_user: str
     rabbitmq_password: str
@@ -40,13 +45,12 @@ class Settings(BaseSettings):
     def rabbitmq_url(self):
         return f"amqp://{self.rabbitmq_user}:{self.rabbitmq_password}@{self.rabbitmq_host}/"
 
-    # redis_host: str
+    db_echo: bool = False
 
     smtp: MailConfig = MailConfig()
 
-    model_config = SettingsConfigDict(env_file='.env')
+    model_config = SettingsConfigDict(env_file='.env', extra='ignore')
 
 
 settings = Settings()
 fm = FastMail(settings.smtp.connection)
-

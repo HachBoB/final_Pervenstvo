@@ -50,10 +50,10 @@ async def sign_in(
         credentials_model = CredentialsJSON(**credentials)
     elif content_type == "application/x-www-form-urlencoded":
         form = await request.form()
-        credentials_model = CredentialsJSON(username=form["username"], password=form["password"])
+        credentials_model = CredentialsJSON(email=form["username"], password=form["password"])
     else:
         raise HTTPException(status_code=415, detail="Unsupported media type")
-    return await AuthService.sign_in(credentials_model.username, credentials_model.password, session)
+    return await AuthService.sign_in(credentials_model.email, credentials_model.password, session)
 
 
 @router.put("/SignOut", responses={
@@ -90,7 +90,7 @@ async def forgot_password(
         data: ForgotData,
         session: AsyncSession = Depends(db.get_async_session)
 ):
-    return await AuthService.forgot_password(email=data.email, session=session)
+    return await AuthService.forgot_password(email=data.email, session_db=session)
 
 
 @router.post("/ForgotPassword/{id}")

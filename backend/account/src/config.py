@@ -40,7 +40,7 @@ class Settings(BaseSettings):
     RABBITMQ_USER: str
     RABBITMQ_PASSWORD: str
 
-    # REDIS_HOST: str
+    REDIS_HOST: str
 
     @property
     def POSTGRES_URL(self) -> str:

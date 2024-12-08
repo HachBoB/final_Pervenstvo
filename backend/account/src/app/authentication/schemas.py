@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, EmailStr
 
 
 class CredentialsJSON(BaseModel):
-    username: str
+    email: str
     password: str
 
 

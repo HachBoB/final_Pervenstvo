@@ -15,7 +15,10 @@ class UserModel(Base):
 
     first_name: Mapped[str] = mapped_column(String)
     last_name: Mapped[str] = mapped_column(String, nullable=True)
+    patronymic: Mapped[str] = mapped_column(String, nullable=True)
     region: Mapped[str] = mapped_column(String, nullable=True)
+    district_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey(
+        "districts.id", ondelete="CASCADE"), nullable=True)
     is_man: Mapped[bool] = mapped_column(Boolean, nullable=True)
 
 
@@ -30,6 +33,10 @@ class UserModel(Base):
 
     role: Mapped["RoleModel"] = relationship(
         "RoleModel",
+        back_populates="users"
+    )
+    district: Mapped["DistrictModel"] = relationship(
+        "DistrictModel",
         back_populates="users"
     )
     refresh_sessions: Mapped[List["RefreshSessionModel"]] = relationship(

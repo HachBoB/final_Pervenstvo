@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 from fastapi import HTTPException, status
 from sqlalchemy import and_
@@ -38,17 +39,44 @@ class UserService:
 
     @classmethod
     async def update_user(cls, user_id: uuid.UUID, user: UserUpdate | UserUpdateAdmin, session: AsyncSession):
+        # Получаем текущего пользователя
         current_user = await cls.get_user(user_id, session)
-        if user.email == current_user.email:
-            del user.email
 
+        # Если email совпадает с текущим, не обновляем его
+        if user.email == current_user.email:
+            user.email = None
+
+        hashed_password: Optional[str] = None
+
+        # Проверка наличия нового пароля
+        if user.password and len(user.password) > 0:
+            # Проверка подтверждения пароля
+            if not user.confirm_password:
+                raise ValueError("Confirm password is required.")
+            if user.password != user.confirm_password:
+                raise ValueError("Password and confirm_password do not match.")
+
+            # Хэшируем пароль
+            hashed_password = get_password_hash(user.password)
+
+        # Подготовка данных для обновления
+        user_data = user.model_dump(
+            exclude={"password", "confirm_password"},
+            exclude_none=True
+        )
+
+        # Устанавливаем новое значение поля `hashed_password`, если пароль был изменён
         user_update = await UserDAO.update(
             session,
             and_(UserModel.id == user_id, UserModel.is_deleted == False),
             obj_in=UserUpdateDB(
-                **user.model_dump(exclude={"password"}),
-                hashed_password=get_password_hash(user.password),
-                is_verify=current_user.is_verify if current_user.email == user.email else False
+                **user_data,
+                hashed_password=hashed_password,
+                is_verify=(
+                    current_user.is_verify
+                    if not user.email or current_user.email == user.email
+                    else False
+                )
             )
         )
 

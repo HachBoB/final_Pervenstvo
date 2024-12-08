@@ -14,7 +14,7 @@ from src.app.accounts.models import UserModel
 from src.rabbitMq.notification import RabbitMQClient
 
 
-oauth2 = OAuth2PasswordBearer(tokenUrl='/api/Authentication/SignIn')
+oauth2 = OAuth2PasswordBearer(tokenUrl='/api/AccService/Authentication/SignIn')
 
 
 async def validate_token(token: str = Depends(oauth2)):
