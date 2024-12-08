@@ -16,6 +16,25 @@ export default function ProfileClientComponent({new_events, userData, token}) {
         password: "",
         confirm_password: "",
     });
+    const handleStatusChange = async (eventId, newStatus) => {
+        try {
+            const response = await fetch(`https://mihest.ru/api/EventsService/Events/${newStatus}/${eventId}`, {
+                method: "POST", // Или другой метод в зависимости от API
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`, // Токен для авторизации
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error("Ошибка при обновлении статуса");
+            }
+
+            console.log(`Статус события ${eventId} успешно обновлен на ${newStatus}`);
+        } catch (error) {
+            console.error("Ошибка при обновлении статуса:", error);
+        }
+    };
 
     const [isPending, startTransition] = useTransition();
     const [error, setError] = useState("");
@@ -162,7 +181,6 @@ export default function ProfileClientComponent({new_events, userData, token}) {
                                 <select
                                     name="is_man"
                                     value={formData.is_man}
-                                    onChange={handleInputChange}
                                     className="bg-transparent border-b-2 border-[#DB7038] px-2 text-[20px] focus:outline-none placeholder:text-white w-[50%]"
                                 >
                                     <option className="bg-[#444444]">Мужской</option>
@@ -256,8 +274,10 @@ export default function ProfileClientComponent({new_events, userData, token}) {
                                                 <td className="py-3 px-4">{item.location}</td>
                                                 <td className="py-3 px-4 text-[#DB7038] ">
                                                     <select
+                                                        onChange={(e) => handleStatusChange(item.id, e.target.value)}
                                                         name="status"
                                                         id=""
+                                                        defaultValue="В рассмотрении"
                                                         className="bg-transparent focus:text-white focus:outline-none focus:border-[#DB7038]"
                                                     >
                                                         <option
@@ -267,13 +287,13 @@ export default function ProfileClientComponent({new_events, userData, token}) {
                                                             В рассмотрении
                                                         </option>
                                                         <option
-                                                            value="d275b98e-8050-439d-8a67-795785d9df62"
+                                                            value="Confirm"
                                                             className="bg-[#20150F] "
                                                         >
                                                             Опубликовать
                                                         </option>
                                                         <option
-                                                            value="ca1e1587-ab9b-4e20-9813-64742ecec488"
+                                                            value="Cancel"
                                                             className="bg-[#20150F] "
                                                         >
                                                             Отклонить
